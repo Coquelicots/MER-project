@@ -1,3 +1,5 @@
 *.wav
 /Data/
 *.txt
+*.png
+.DS_Store

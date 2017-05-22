@@ -3,33 +3,23 @@ import tensorflow
 import numpy as np
 
 ''' Import keras to build a DL model '''
+from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.utils import np_utils
 
-#Load data
-train_data = np.load('Classical_Data_Pack.txt')
-shape = train_data[0].shape
-tag = np.genfromtxt('classical_tag.txt', delimiter=',')
-tag = tag.astype('int')
-tag = np_utils.to_categorical(tag,8)
+train_data_dir = 'picIntag/'
 
 ''' For categorical_crossentropy '''
 model_ce = Sequential()
-model_ce.add(Convolution2D(64,3,3, input_shape= shape))
-model_ce.add(MaxPooling2D(pool_size = (2,2)))
-model_ce.add(Convolution2D(64,3,3))
-model_ce.add(MaxPooling2D(pool_size = (2,2)))
-model_ce.add(Convolution2D(64,3,3))
-model_ce.add(MaxPooling2D(pool_size = (2,2)))
-model_ce.add(Convolution2D(64,3,3))
+model_ce.add(Convolution2D(64,3,3, input_shape=(256,256,3) ))
 model_ce.add(MaxPooling2D(pool_size = (2,2)))
 model_ce.add(Convolution2D(64,3,3))
 model_ce.add(MaxPooling2D(pool_size = (2,2)))
 model_ce.add(Flatten())
 model_ce.add(Dense(256))
-model_ce.add(Dense(8))
+model_ce.add(Dense(9))
 model_ce.add(Activation('softmax'))
 
 ''' Set up the optimizer '''
@@ -43,21 +33,32 @@ model_ce.compile(loss='categorical_crossentropy',
 
 ''' set the size of mini-batch and number of epochs'''
 batch_size = 16
-nb_epoch = 32
+nb_epoch = 16
 
-'''Fit models and use validation_split=0.1 '''
+train_datagen = ImageDataGenerator()
+train_generator = train_datagen.flow_from_directory(
+    train_data_dir,
+    batch_size=16)
+
+history_ce = model_ce.fit_generator(train_generator,steps_per_epoch=25,epochs=nb_epoch,verbose = 1, validation_data=None, validation_steps=None)
+
+'''
 history_ce = model_ce.fit(train_data, tag,
 							verbose=0,
 							shuffle=True,
 							nb_epoch = nb_epoch,
-                    		validation_split=0.2)
-
+                    		validation_split=0.1)
+'''
 '''Access the loss and accuracy in every epoch'''
 loss_ce	= history_ce.history.get('loss')
 acc_ce 	= history_ce.history.get('acc')
+print (loss_ce)
+print (acc_ce)
+'''
 val_loss = history_ce.history.get('val_loss')
 val_acc = history_ce.history.get('val_acc')
-''' Visualize the loss and accuracy of both models'''
+'''
+''' Visualize the loss and accuracy of both models
 import matplotlib.pyplot as plt
 plt.figure('Cnn')
 plt.subplot(121)
@@ -71,3 +72,4 @@ plt.plot(range(len(val_acc)), val_acc,label='Validation')
 plt.title('Accuracy')
 plt.savefig('CNN.png',dpi=300,format='png')
 plt.show()
+'''
