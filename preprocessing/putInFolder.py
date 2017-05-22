@@ -10,12 +10,12 @@ def compare(a,b):
 	return cmp(len(a),len(b))
 
 dataset_path = '../SmallPic/'
-des_path = '../picIntype/'
-des_folders = ['calm','joy','nostalgia','tenderness','solemnity','power','sadness','tension']
+des_path = '../picIntag/'
+des_folders = ['calm','joy','nostalgia','tenderness','solemnity','power','sadness','tension','amazement']
 train_fns = [fn for fn in listdir(dataset_path)]
 train_fns.sort(cmp = compare)
 
-tags = np.genfromtxt('../Data/classical_tag.txt', delimiter=',')
+tags = np.genfromtxt('../tag.txt', delimiter=',')
 tags = tags.astype('int')
 
 for x in range(len(tags)):

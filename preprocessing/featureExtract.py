@@ -11,20 +11,24 @@ def compare(a,b):
 		return cmp(a,b)
 	return cmp(len(a),len(b))
 
-dataset_path = '../Data/pop/'
+dataset_path = '../Data/AllInOne/'
 train_fns = [fn for fn in listdir(dataset_path)]
 train_fns.sort(cmp = compare)
-print train_fns
 
+F = open('feature.txt','w') 
 
 count = 1
-data = []
 for fn in train_fns:
 	y,sr = librosa.core.load((dataset_path + fn),mono = True)
-	D = librosa.stft(y)
-	S = librosa.amplitude_to_db(D,ref=np.max)
-	plt.figure()
-	librosa.display.specshow(S)
-	plt.savefig('../Pic/pop/'+str(count)+'.png',format='png')
-	plt.close()
-	count+=1
+	rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr)
+	rolloff = 0.85*(np.sum(rolloff))
+	cent = librosa.feature.spectral_centroid(y=y, sr=sr)
+	cent = np.mean(cent)
+	zerocross = librosa.feature.zero_crossing_rate(y)
+	zerocross = np.mean(zerocross)
+	data = str(rolloff)+','+str(cent)+','+str(zerocross)+'\n'
+	print data
+	F.write(data)
+	print count
+	count += 1
+F.close()
